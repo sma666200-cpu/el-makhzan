@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    
+    <meta 
+        name="viewport" 
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+    
+    <title>
+        MAS TECH ERP - نظام إدارة المخزون الاحترافي
+    </title>
+
+    <link 
+        rel="icon" 
+        href="icon.jpg" 
+        type="image/jpeg"
+    >
+    
+    <link 
+        rel="stylesheet" 
+        href="style.css"
+    >
+
+    <script 
+        src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"
+    ></script>
+    
+    <script 
+        src="https://unpkg.com/html5-qrcode" 
+        type="text/javascript"
+    ></script>
+</head>
+
+<body>
+
+    <div 
+        id="toast-container" 
+        class="toast-container"
+    ></div>
+
+    <datalist 
+        id="products-list"
+    ></datalist>
+
+    <div 
+        id="login-section" 
+        class="login-screen"
+    >
+        
+        <div class="glass-panel">
+            
+            <h2 class="brand-title">
+                MAS TECH ERP
+            </h2>
+            
+            <p class="brand-subtitle mb-1">
+                النظام المؤسسي المتكامل لإدارة المخازن
+            </p>
+
+            <div class="input-group">
+                
+                <label>اسم المستخدم</label>
+                <input 
+                    type="text" 
+                    id="login-username" 
+                    placeholder="أدخل اسمك هنا" 
+                    required 
+                    autocomplete="off"
+                >
+                
+                <label>كلمة المرور</label>
+                <input 
+                    type="password" 
+                    id="login-password" 
+                    placeholder="******" 
+                    required 
+                    onkeypress="if(event.key === 'Enter') login()"
+                >
+                
+            </div>
+
+            <div class="action-buttons mt-1">
+                
+                <button 
+                    onclick="login()" 
+                    class="btn-primary flex-2"
+                >
+                    تسجيل دخول للنظام
+                </button>
+                
+                <button 
+                    onclick="openModal('register-admin-modal')" 
+                    class="btn-secondary flex-1"
+                >
+                    إضافة مدير مخزن
+                </button>
+                
+            </div>
+            
+        </div>
+        
+    </div>
+
+    <div 
+        id="dashboard-section" 
+        class="hidden"
+    >
+
+        <header class="top-header">
+            
+            <div class="header-right">
+                
+                <button 
+                    class="mobile-menu-btn" 
+                    onclick="toggleSidebar()"
+                >
+                    ☰
+                </button>
+                
+                <span 
+                    class="user-badge" 
+                    id="display-manager"
+                >
+                    جاري التحميل...
+                </span>
+                
+                <button 
+                    onclick="toggleTheme()" 
+                    class="theme-btn" 
+                    id="theme-icon"
+                >
+                    🌙
+                </button>
+                
+            </div>
+
+            <div class="header-left">
+                
+                <button 
+                    id="btn-add-storekeeper" 
+                    onclick="openModal('add-storekeeper-modal')" 
+                    class="btn-success"
+                >
+                    ➕ إضافة أمين مخزن
+                </button>
+                
+                <button 
+                    onclick="generateDailyReport()" 
+                    class="btn-warning"
+                >
+                    🖨️ تقارير يومية
+                </button>
+                
+                <button 
+                    onclick="openModal('dispense-modal')" 
+                    class="btn-danger pulse-effect"
+                >
+                    📝 صرف بضاعة 
+                </button>
+                
+            </div>
+            
+        </header>
+
+        <div class="app-layout">
+
+            <aside class="sidebar" id="app-sidebar">
+                
+                <button 
+                    class="close-sidebar-btn hidden" 
+                    onclick="toggleSidebar()"
+                >
+                    ✖ إغلاق القائمة
+                </button>
+
+                <button 
+                    onclick="showTab('overview')" 
+                    class="tab-btn active"
+                >
+                    📊 الإحصائيات العامة
+                </button>
+                
+                <button 
+                    onclick="showTab('incoming')" 
+                    class="tab-btn"
+                >
+                    📥 إضافة واردات جديدة
+                </button>
+                
+                <button 
+                    onclick="showTab('movement')" 
+                    class="tab-btn"
+                >
+                    🔄 سجل حركات المخزن
+                </button>
+                
+                <button 
+                    onclick="showTab('returns')" 
+                    class="tab-btn"
+                >
+                    🔙 تسجيل المرتجعات
+                </button>
+                
+                <button 
+                    onclick="showTab('archive')" 
+                    class="tab-btn"
+                >
+                    🗄️ الأرشيف والنواقص
+                </button>
+
+                <div id="admin-only-sidebar-items">
+                    
+                    <div class="sidebar-divider">
+                    </div>
+                    
+                    <button 
+                        onclick="showTab('products')" 
+                        class="tab-btn"
+                    >
+                        📦 جداول جرد المنتجات
+                    </button>
+                    
+                    <button 
+                        onclick="showTab('market-pricing')" 
+                        class="tab-btn"
+                    >
+                        📈 تحديث أسعار السوق
+                    </button>
+
+                    <button 
+                        onclick="showTab('orders-tracking')" 
+                        class="tab-btn"
+                    >
+                        🚚 تتبع طلبيات المصانع
+                    </button>
+                    
+                    <button 
+                        onclick="openModal('factory-order-modal')" 
+                        class="tab-btn btn-factory"
+                    >
+                        🛒 طلب توريد من مصنع
+                    </button>
+                    
+                </div>
+
+                <div class="sidebar-divider">
+                </div>
+
+                <button 
+                    onclick="logout()" 
+                    class="tab-btn btn-logout"
+                >
+                    🚪 خروج من النظام
+                </button>
+                
+            </aside>
+
+            <main class="content-area">
+
+                <section 
+                    id="market-pricing" 
+                    class="tab-content hidden"
+                >
+                    
+                    <h3 class="section-title">
+                        📈 شاشة تحديث أسعار السوق الحقيقية
+                    </h3>
+                    
+                    <div class="table-container">
+                        
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>الباركود</th>
+                                    <th>اسم المنتج</th>
+                                    <th>السعر الحالي</th>
+                                    <th>السعر الجديد (ج.م)</th>
+                                    <th>تحديث</th>
+                                </tr>
+                            </thead>
+                            <tbody id="market-pricing-tbody">
+                            </tbody>
+                        </table>
+                        
+                    </div>
+                    
+                </section>
+
+                <section 
+                    id="orders-tracking" 
+                    class="tab-content hidden"
+                >
+                    
+                    <h3 class="section-title">
+                        🚚 تتبع طلبيات المصانع والتوريد
+                    </h3>
+                    
+                    <div class="table-container">
+                        
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>اسم المنتج</th>
+                                    <th>الكمية</th>
+                                    <th>المصنع المورد</th>
+                                    <th>بيانات التواصل</th>
+                                    <th>حالة الطلب</th>
+                                    <th>خيارات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="factory-orders-tbody">
+                            </tbody>
+                        </table>
+                        
+                    </div>
+                    
+                    <button 
+                        onclick="logout()" 
+                        class="btn-danger mt-1"
+                    >
+                        🚪 تسجيل خروج
+                    </button>
+                    
+                </section>
+
+                <section 
+                    id="overview" 
+                    class="tab-content"
+                >
+                    
+                    <h3 class="section-title">
+                        📊 لوحة بيانات المخزن اليومية
+                    </h3>
+                    
+                    <div class="form-grid">
+                        
+                        <div class="stat-card stat-blue">
+                            <h4>إجمالي الأصناف</h4>
+                            <h2 id="stat-total-products">0</h2>
+                        </div>
+                        
+                        <div class="stat-card stat-warning">
+                            <h4>المرتجعات اليوم</h4>
+                            <h2 id="stat-total-returns">0</h2>
+                        </div>
+                        
+                        <div class="stat-card stat-danger">
+                            <h4>الأصناف المنتهية</h4>
+                            <h2 id="stat-total-archive">0</h2>
+                        </div>
+                        
+                    </div>
+                    
+                </section>
+
+                <section 
+                    id="incoming" 
+                    class="tab-content hidden"
+                >
+                    
+                    <h3 class="section-title">
+                        📥 تسجيل واردات 
+                    </h3>
+                    
+                    <div 
+                        class="form-grid"
+                    >
+                        
+                        <div 
+                            class="image-capture-zone" 
+                            style="grid-column: 1/-1;"
+                        >
+                            
+                            <label>📸 تصوير المنتج </label>
+                            
+                            <div class="capture-controls">
+                                
+                                <input 
+                                    type="file" 
+                                    id="inc-image" 
+                                    accept="image/*" 
+                                    capture="environment" 
+                                    onchange="previewImage(event)" 
+                                    style="display: none;"
+                                >
+                                
+                                <button 
+                                    onclick="document.getElementById('inc-image').click()" 
+                                    class="btn-primary"
+                                >
+                                    📷 افتح الكاميرا للتصوير
+                                </button>
+                                
+                                <img 
+                                    id="image-preview" 
+                                    class="img-preview-box"
+                                >
+                                
+                            </div>
+                            
+                        </div>
+
+                        <div 
+                            class="barcode-input-zone" 
+                            style="grid-column: 1/-1;"
+                        >
+                            
+                            <label>كود المنتج / الباركود</label>
+                            
+                            <div class="input-with-tools">
+                                
+                                <input 
+                                    type="text" 
+                                    id="inc-code" 
+                                    placeholder="اسحب الباركود بالاسكانر..."
+                                >
+                                
+                                <button 
+                                    onclick="startScanner('inc-code')" 
+                                    class="btn-warning"
+                                >
+                                    📷 اسكانر الموبايل
+                                </button>
+                                
+                                <button 
+                                    onclick="generateBarcode()" 
+                                    class="btn-secondary"
+                                >
+                                    🎲 كود عشوائي
+                                </button>
+                                
+                            </div>
+                            
+                        </div>
+
+                        <div class="form-group">
+                            <label>اسم الصنف</label>
+                            <input 
+                                type="text" 
+                                id="inc-name" 
+                                placeholder="أدخل اسم المنتج"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label>تصنيف المنتج (الفلتر)</label>
+                            <select 
+                                id="inc-category" 
+                                class="styled-select"
+                            >
+                                <option value="مواد غذائية">مواد غذائية</option>
+                                <option value="أدوات كهربائية">أدوات كهربائية</option>
+                                <option value="مواد بناء">مواد بناء</option>
+                                <option value="منظفات">منظفات</option>
+                                <option value="أخرى">أخرى...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>السعر (ج.م)</label>
+                            <input 
+                                type="number" 
+                                id="inc-price" 
+                                placeholder="0.00"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label>الكمية</label>
+                            <input 
+                                type="number" 
+                                id="inc-qty" 
+                                placeholder="العدد"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label>الصلاحية</label>
+                            <input 
+                                type="text" 
+                                id="inc-expiry" 
+                                placeholder="يوم/شهر/سنة"
+                            >
+                        </div>
+
+                        <button 
+                            onclick="addIncoming()" 
+                            class="btn-success full-width" 
+                            style="grid-column: 1/-1;"
+                        >
+                            📥 حفظ وتأكيد الإضافة للمخزن
+                        </button>
+                        
+                    </div>
+                    
+                </section>
+
+                <section 
+                    id="products" 
+                    class="tab-content hidden"
+                >
+                    
+                    <h3 class="section-title">
+                        📦 جرد المخزن العام 
+                    </h3>
+                    
+                    <div class="form-group mb-1">
+                        <select 
+                            id="category-filter" 
+                            class="styled-select" 
+                            onchange="updateUI()" 
+                            style="border: 2px solid var(--primary);"
+                        >
+                            <option value="الكل">عرض جميع التصنيفات</option>
+                            <option value="مواد غذائية">مواد غذائية</option>
+                            <option value="أدوات كهربائية">أدوات كهربائية</option>
+                            <option value="مواد بناء">مواد بناء</option>
+                            <option value="منظفات">منظفات</option>
+                            <option value="أخرى">أخرى...</option>
+                        </select>
+                    </div>
+
+                    <div class="table-container">
+                        
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>الباركود</th>
+                                    <th>التصنيف</th>
+                                    <th>اسم المنتج</th>
+                                    <th>الكمية</th>
+                                    <th>السعر</th>
+                                    <th>الصلاحية</th>
+                                    <th>إجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="products-tbody">
+                            </tbody>
+                        </table>
+                        
+                    </div>
+                    
+                </section>
+
+                <section 
+                    id="movement" 
+                    class="tab-content hidden"
+                >
+                    
+                    <h3 class="section-title">
+                        🔄 سجل العمليات والحركات اليومية
+                    </h3>
+                    
+                    <div class="table-container">
+                        
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>الوقت</th>
+                                    <th>العملية</th>
+                                    <th>المنتج</th>
+                                    <th>الكمية</th>
+                                    <th>المستلم ورقم الفون</th>
+                                    <th>الموظف</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movement-tbody">
+                            </tbody>
+                        </table>
+                        
+                    </div>
+                    
+                </section>
+
+                <section 
+                    id="returns" 
+                    class="tab-content hidden"
+                >
+                    
+                    <h3 class="section-title">
+                        🔙 تسجيل البضاعة المرتجعة
+                    </h3>
+                    
+                    <div class="form-grid mb-1">
+                        
+                        <div class="form-group">
+                            <label>باركود المنتج</label>
+                            <div class="input-with-tools">
+                                <input 
+                                    type="text" 
+                                    id="ret-code" 
+                                    placeholder="اسحب الكود..." 
+                                    oninput="autoFillReturn()"
+                                >
+                                <button 
+                                    onclick="startScanner('ret-code')" 
+                                    class="btn-warning"
+                                >
+                                    📷
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>اسم المنتج</label>
+                            <input 
+                                type="text" 
+                                id="ret-name" 
+                                readonly 
+                                class="readonly-input"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label>اسم العميل</label>
+                            <input 
+                                type="text" 
+                                id="ret-customer" 
+                                placeholder="اسم المسترجع"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label>الكمية</label>
+                            <input 
+                                type="number" 
+                                id="ret-qty"
+                            >
+                        </div>
+
+                        <div 
+                            class="form-group" 
+                            style="grid-column: 1/-1;"
+                        >
+                            <label>السبب</label>
+                            <input 
+                                type="text" 
+                                id="ret-reason" 
+                                placeholder="لماذا تم الإرجاع؟"
+                            >
+                        </div>
+
+                        <button 
+                            onclick="addReturn()" 
+                            class="btn-warning full-width" 
+                            style="grid-column: 1/-1;"
+                        >
+                            حفظ بيانات المرتجع
+                        </button>
+                        
+                    </div>
+
+                    <div class="table-container">
+                        
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>الباركود</th>
+                                    <th>العميل</th>
+                                    <th>الكمية</th>
+                                    <th>السبب</th>
+                                </tr>
+                            </thead>
+                            <tbody id="returns-tbody">
+                            </tbody>
+                        </table>
+                        
+                    </div>
+                    
+                </section>
+
+                <section 
+                    id="archive" 
+                    class="tab-content hidden"
+                >
+                    
+                    <h3 class="section-title">
+                        🗄️ أرشيف المنتجات المنتهية والناقصة
+                    </h3>
+                    
+                    <div class="table-container">
+                        
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>كود المنتج</th>
+                                    <th>اسم المنتج</th>
+                                    <th>الحالة</th>
+                                    <th>طلب توريد</th>
+                                </tr>
+                            </thead>
+                            <tbody id="archive-tbody">
+                            </tbody>
+                        </table>
+                        
+                    </div>
+                    
+                </section>
+
+            </main>
+            
+        </div>
+        
+    </div>
+
+    <div 
+        id="register-admin-modal" 
+        class="modal"
+    >
+        <div class="modal-content">
+            <h3 class="modal-title">
+                ثبت بيانات مدير المخزن
+            </h3>
+            <div class="form-group">
+                <input 
+                    type="text" 
+                    id="reg-admin-user" 
+                    placeholder="الاسم الرباعي"
+                >
+                <select 
+                    id="reg-admin-shift" 
+                    class="styled-select"
+                >
+                    <option value="" disabled selected>-- اختر شيفت العمل --</option>
+                    <option value="شيفت نهاري">شيفت نهاري</option>
+                    <option value="شيفت ليلي">شيفت ليلي</option>
+                </select>
+                <input 
+                    type="password" 
+                    id="reg-admin-pass" 
+                    placeholder="كلمة المرور"
+                >
+            </div>
+            <div class="modal-actions">
+                <button 
+                    onclick="registerUser('admin')" 
+                    class="btn-primary"
+                >
+                    تأكيد الحفظ
+                </button>
+                <button 
+                    onclick="closeModal('register-admin-modal')" 
+                    class="btn-secondary"
+                >
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div 
+        id="factory-order-modal" 
+        class="modal"
+    >
+        <div class="modal-content">
+            <h3 class="modal-title">
+                🛒 إرسال طلب للموردين
+            </h3>
+            <div class="form-group">
+                <label>اسم المنتج</label>
+                <input 
+                    type="text" 
+                    id="po-product-name" 
+                    placeholder="ماذا تريد من المصنع؟"
+                >
+                
+                <label>الكمية</label>
+                <div style="display: flex; gap: 10px;">
+                    <input 
+                        type="number" 
+                        id="po-qty" 
+                        style="flex: 2;"
+                    >
+                    <select 
+                        id="po-unit" 
+                        class="styled-select" 
+                        style="flex: 1;"
+                    >
+                        <option value="كيلو">كيلو</option>
+                        <option value="طن">طن</option>
+                        <option value="قطعة">قطعة</option>
+                        <option value="كرتونة">كرتونة</option>
+                    </select>
+                </div>
+                
+                <label>عنوانك ورقمك</label>
+                <input 
+                    type="text" 
+                    id="po-warehouse-address" 
+                    placeholder="عنوان الاستلام"
+                >
+                <input 
+                    type="tel" 
+                    id="po-user-phone" 
+                    placeholder="رقم موبايلك"
+                >
+            </div>
+            <div class="modal-actions">
+                <button 
+                    onclick="submitFactoryOrder()" 
+                    class="btn-primary"
+                >
+                    إرسال للمصنع 📧
+                </button>
+                <button 
+                    onclick="closeModal('factory-order-modal')" 
+                    class="btn-secondary"
+                >
+                    تراجع
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div 
+        id="add-storekeeper-modal" 
+        class="modal"
+    >
+        <div class="modal-content">
+            <h3 class="modal-title">
+                أمين مخزن جديد
+            </h3>
+            <div class="form-group">
+                <input 
+                    type="text" 
+                    id="storekeeper-user" 
+                    placeholder="الاسم"
+                >
+                <input 
+                    type="password" 
+                    id="storekeeper-pass" 
+                    placeholder="كلمة المرور"
+                >
+            </div>
+            <div class="modal-actions">
+                <button 
+                    onclick="registerUser('storekeeper')" 
+                    class="btn-success"
+                >
+                    حفظ
+                </button>
+                <button 
+                    onclick="closeModal('add-storekeeper-modal')" 
+                    class="btn-secondary"
+                >
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div 
+        id="dispense-modal" 
+        class="modal"
+    >
+        <div class="modal-content">
+            <h3 class="modal-title">
+                📝 إنشاء فاتورة صرف
+            </h3>
+            <div class="form-group">
+                
+                <label>باركود الصنف (أو استخدم الاسكانر)</label>
+                <div class="input-with-tools">
+                    <input 
+                        type="text" 
+                        id="disp-code" 
+                        placeholder="باركود الصنف..." 
+                        oninput="fetchProductForDispense()"
+                    >
+                    <button 
+                        onclick="startScanner('disp-code')" 
+                        class="btn-warning"
+                    >
+                        📷
+                    </button>
+                </div>
+                
+                <label>اسم المنتج (يمكنك البحث بالكتابة هنا)</label>
+                <input 
+                    type="text" 
+                    id="disp-name" 
+                    placeholder="اكتب اسم المنتج للبحث..." 
+                    list="products-list" 
+                    oninput="fetchProductByNameForDispense()"
+                >
+                
+                <label>بيانات المستلم</label>
+                <input 
+                    type="text" 
+                    id="disp-customer" 
+                    placeholder="اسم المستلم"
+                >
+                <input 
+                    type="tel" 
+                    id="disp-phone" 
+                    placeholder="رقم هاتف المستلم (اختياري)"
+                >
+                
+                <label>الكمية</label>
+                <input 
+                    type="number" 
+                    id="disp-qty" 
+                    placeholder="الكمية المصروفة"
+                >
+                
+            </div>
+            <div class="modal-actions">
+                <button 
+                    onclick="submitDispense()" 
+                    class="btn-danger"
+                >
+                    تأكيد الصرف
+                </button>
+                <button 
+                    onclick="closeModal('dispense-modal')" 
+                    class="btn-secondary"
+                >
+                    إلغاء
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div 
+        id="scanner-modal" 
+        class="modal"
+    >
+        <div class="modal-content">
+            <h3 class="modal-title">
+                📷 قارئ الباركود الذكي
+            </h3>
+            <div 
+                id="reader" 
+                class="scanner-box" 
+                style="min-height: 200px; display: flex; align-items: center; justify-content: center; background: #eee; border-radius: 8px;"
+            >
+                جاري تهيئة الكاميرا...
+            </div>
+            <div class="modal-actions">
+                <button 
+                    onclick="stopScanner()" 
+                    class="btn-danger full-width"
+                >
+                    إيقاف الكاميرا
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div 
+        id="barcode-print-area" 
+        class="hidden"
+    >
+        <div class="barcode-label">
+            <h3 id="barcode-name-val"></h3>
+            <svg id="barcode-svg"></svg>
+            <p id="barcode-price-val"></p>
+        </div>
+    </div>
+
+    <div 
+        id="print-area" 
+        class="hidden"
+    >
+    </div>
+
+    <script 
+        type="module" 
+        src="Js.js?v=8"
+    ></script>
+
+</body>
+</html>
